@@ -30,14 +30,29 @@ func (o *globalSettings) GeNodeForPod(podName string) (string, error) {
 	return pod.Spec.NodeName, nil
 }
 
-func (o *globalSettings) GetNamespaces() error {
+func (o *globalSettings) GetNamespaces() (int, error) {
 	opts := metav1.ListOptions{}
 	ns, err := o.client.CoreV1().Namespaces().List(opts)
 	if err != nil {
-		return fmt.Errorf("got an error while getting namespaces: %s", err)
+		return 0, fmt.Errorf("got an error while getting namespaces: %s", err)
 	}
-	for _, n := range ns.Items {
-		fmt.Println(n.GetName())
+	return len(ns.Items), nil
+}
+
+func (o *globalSettings) GetNodes() (int, int, error) {
+	opts := metav1.ListOptions{}
+	no, err := o.client.CoreV1().Nodes().List(opts)
+	if err != nil {
+		return 0, 0, fmt.Errorf("got an error while getting namespaces: %s", err)
 	}
-	return nil
+	unschedulable := 0
+	for _, n := range no.Items {
+		if n.Spec.Unschedulable {
+			unschedulable++
+		}
+		// TODO capacity check
+		// fmt.Println(n.Status.Allocatable)
+		// fmt.Println(n.Status.Capacity)
+	}
+	return len(no.Items), unschedulable, nil
 }

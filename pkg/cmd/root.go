@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"strconv"
 
 	// Required auth libraries
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -18,7 +21,17 @@ var (
 		Short: "Kubectl glance",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			GlobalSettings.InitClient()
-			err := GlobalSettings.GetNamespaces()
+			ns, err := GlobalSettings.GetNamespaces()
+			fmt.Printf(
+				"%s Namespaces\n",
+				color.GreenString(strconv.Itoa(ns)),
+			)
+			nodesOK, nodesKO, err := GlobalSettings.GetNodes()
+			fmt.Printf(
+				"%s Nodes (%s KO)\n",
+				color.GreenString(strconv.Itoa(nodesOK)),
+				color.RedString(strconv.Itoa(nodesKO)),
+			)
 			return err
 		},
 	}
