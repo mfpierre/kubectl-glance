@@ -1,6 +1,7 @@
 module github.com/mfpierre/kubectl-glance
 
 require (
+	github.com/briandowns/spinner v0.0.0-20190319032542-ac46072a5a91
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/evanphx/json-patch v4.1.0+incompatible // indirect
 	github.com/fatih/color v1.7.0

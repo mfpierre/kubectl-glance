@@ -17,6 +17,11 @@ const pvcs = "persistent volume claims"
 const sas = "service accounts"
 const secrets = "secrets"
 const endpoints = "endpoints"
+const daemonsets = "daemonsets"
+const deploys = "deployments"
+const replicasets = "replica sets"
+const statefulsets = "stateful sets"
+const jobs = "jobs"
 
 func (o *globalSettings) InitClient() {
 	restConfig, err := o.configFlags.ToRESTConfig()
@@ -47,6 +52,7 @@ func (o *globalSettings) GetNamespacedRessources() (map[string]int, error) {
 	if err != nil {
 		return namespacedResources, fmt.Errorf("got an error while getting namespaces: %s", err)
 	}
+
 	namespacedResources[namespaces] = len(ns.Items)
 	namespacedResources[pods] = 0
 	namespacedResources[services] = 0
@@ -55,6 +61,12 @@ func (o *globalSettings) GetNamespacedRessources() (map[string]int, error) {
 	namespacedResources[secrets] = 0
 	namespacedResources[sas] = 0
 	namespacedResources[endpoints] = 0
+	namespacedResources[daemonsets] = 0
+	namespacedResources[deploys] = 0
+	namespacedResources[replicasets] = 0
+	namespacedResources[statefulsets] = 0
+	namespacedResources[jobs] = 0
+
 	for _, n := range ns.Items {
 		opts := metav1.ListOptions{}
 		po, err := o.client.CoreV1().Pods(n.Name).List(opts)
@@ -85,7 +97,26 @@ func (o *globalSettings) GetNamespacedRessources() (map[string]int, error) {
 		if err == nil {
 			namespacedResources[pvcs] += len(pvc.Items)
 		}
-		// secr, sa, endpoint
+		ds, err := o.client.AppsV1().DaemonSets(n.Name).List(opts)
+		if err == nil {
+			namespacedResources[daemonsets] = len(ds.Items)
+		}
+		depl, err := o.client.AppsV1().Deployments(n.Name).List(opts)
+		if err == nil {
+			namespacedResources[deploys] = len(depl.Items)
+		}
+		rs, err := o.client.AppsV1().ReplicaSets(n.Name).List(opts)
+		if err == nil {
+			namespacedResources[replicasets] = len(rs.Items)
+		}
+		sts, err := o.client.AppsV1().StatefulSets(n.Name).List(opts)
+		if err == nil {
+			namespacedResources[statefulsets] = len(sts.Items)
+		}
+		j, err := o.client.BatchV1().Jobs(n.Name).List(opts)
+		if err == nil {
+			namespacedResources[jobs] = len(j.Items)
+		}
 	}
 	return namespacedResources, nil
 }

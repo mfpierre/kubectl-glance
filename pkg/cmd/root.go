@@ -6,7 +6,9 @@ import (
 	"strconv"
 	"strings"
 	"text/tabwriter"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -24,8 +26,13 @@ var (
 		Use:   "kubectl glance",
 		Short: "Kubectl glance",
 		RunE: func(cmd *cobra.Command, args []string) error {
+
+			s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
+			s.Start()
+
 			GlobalSettings.InitClient()
 			w := tabwriter.NewWriter(os.Stdout, 3, 4, 1, ' ', tabwriter.AlignRight)
+
 			nodesOK, nodesKO, cpuAllocatable, memAllocatable, err := GlobalSettings.GetNodes()
 			fmt.Fprintln(
 				w,
@@ -55,6 +62,8 @@ var (
 					color.GreenString(strconv.Itoa(pv)),
 				),
 			)
+
+			s.Stop()
 			w.Flush()
 			return err
 		},
