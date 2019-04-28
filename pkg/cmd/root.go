@@ -51,7 +51,7 @@ var (
 			pv, err := GlobalSettings.GetPersistentVolumes()
 			fmt.Fprintln(
 				w,
-				fmt.Sprintf("Persistent volumes\t %s",
+				fmt.Sprintf("Persistent Volumes\t %s",
 					color.GreenString(strconv.Itoa(pv)),
 				),
 			)
