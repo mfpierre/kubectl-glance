@@ -4,11 +4,11 @@ GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 BINARY_NAME=kubectl-glance
+export GO111MODULE=on
 
 all: test build
 
 build:
-	export GO111MODULE=on
 	$(GOBUILD) -o $(BINARY_NAME) -v
 
 test:

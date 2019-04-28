@@ -2,12 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"text/tabwriter"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"strconv"
 
 	// Required auth libraries
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -21,17 +25,34 @@ var (
 		Short: "Kubectl glance",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			GlobalSettings.InitClient()
-			ns, err := GlobalSettings.GetNamespaces()
-			fmt.Printf(
-				"%s Namespaces\n",
-				color.GreenString(strconv.Itoa(ns)),
+			namespacedResources, err := GlobalSettings.GetNamespacedRessources()
+			w := tabwriter.NewWriter(os.Stdout, 3, 4, 1, ' ', tabwriter.AlignRight)
+			for resource, value := range namespacedResources {
+				fmt.Fprintln(
+					w,
+					fmt.Sprintf("%s\t %s",
+						strings.Title(resource),
+						color.GreenString(strconv.Itoa(value)),
+					),
+				)
+			}
+
+			pv, err := GlobalSettings.GetPersistentVolumes()
+			fmt.Fprintln(
+				w,
+				fmt.Sprintf("Persistent volumes\t %s",
+					color.GreenString(strconv.Itoa(pv)),
+				),
 			)
 			nodesOK, nodesKO, err := GlobalSettings.GetNodes()
-			fmt.Printf(
-				"%s Nodes (%s KO)\n",
-				color.GreenString(strconv.Itoa(nodesOK)),
-				color.RedString(strconv.Itoa(nodesKO)),
+			fmt.Fprintln(
+				w,
+				fmt.Sprintf("Nodes\t %s (%s Unschedulable)",
+					color.GreenString(strconv.Itoa(nodesOK)),
+					color.RedString(strconv.Itoa(nodesKO)),
+				),
 			)
+			w.Flush()
 			return err
 		},
 	}
