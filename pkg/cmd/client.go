@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"k8s.io/client-go/kubernetes"
-
-	// corev1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 const namespaces = "namespaces"
@@ -99,30 +99,21 @@ func (o *globalSettings) GetPersistentVolumes() (int, error) {
 	return len(pv.Items), nil
 }
 
-func (o *globalSettings) GetNodes() (int, int, error) {
+func (o *globalSettings) GetNodes() (int, int, string, string, error) {
 	opts := metav1.ListOptions{}
 	no, err := o.client.CoreV1().Nodes().List(opts)
 	if err != nil {
-		return 0, 0, fmt.Errorf("got an error while getting namespaces: %s", err)
+		return 0, 0, "", "", fmt.Errorf("got an error while getting namespaces: %s", err)
 	}
 	unschedulable := 0
-	// cpuAllocatable := int64(0)
-	// cpuCapacity := int64(0)
+	cpuAllocatable, _ := resource.ParseQuantity("0")
+	memAllocatable, _ := resource.ParseQuantity("0")
 	for _, n := range no.Items {
 		if n.Spec.Unschedulable {
 			unschedulable++
 		}
-		// TODO capacity check
-		// q := n.Status.Allocatable[corev1.ResourceName("cpu")]
-		// v, _ := q.AsInt64()
-		// fmt.Println(v)
-		// cpuAllocatable += v
-		// q = n.Status.Capacity[corev1.ResourceName("cpu")]
-		// cpuCapacity += q.Value()
-		// fmt.Println(n.Status.Allocatable)
-		// fmt.Println(n.Status.Capacity)
+		cpuAllocatable.Add(n.Status.Allocatable[corev1.ResourceName("cpu")])
+		memAllocatable.Add(n.Status.Capacity[corev1.ResourceName("memory")])
 	}
-	// fmt.Println(cpuAllocatable)
-	// fmt.Println(cpuCapacity)
-	return len(no.Items), unschedulable, nil
+	return len(no.Items), unschedulable, cpuAllocatable.String(), memAllocatable.String(), nil
 }

@@ -25,8 +25,19 @@ var (
 		Short: "Kubectl glance",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			GlobalSettings.InitClient()
-			namespacedResources, err := GlobalSettings.GetNamespacedRessources()
 			w := tabwriter.NewWriter(os.Stdout, 3, 4, 1, ' ', tabwriter.AlignRight)
+			nodesOK, nodesKO, cpuAllocatable, memAllocatable, err := GlobalSettings.GetNodes()
+			fmt.Fprintln(
+				w,
+				fmt.Sprintf("Nodes\t %s (%s Unschedulable) Allocatable: CPU %s cores, Mem %s bytes",
+					color.GreenString(strconv.Itoa(nodesOK)),
+					color.RedString(strconv.Itoa(nodesKO)),
+					color.GreenString(cpuAllocatable),
+					color.GreenString(memAllocatable),
+				),
+			)
+
+			namespacedResources, err := GlobalSettings.GetNamespacedRessources()
 			for resource, value := range namespacedResources {
 				fmt.Fprintln(
 					w,
@@ -42,14 +53,6 @@ var (
 				w,
 				fmt.Sprintf("Persistent volumes\t %s",
 					color.GreenString(strconv.Itoa(pv)),
-				),
-			)
-			nodesOK, nodesKO, err := GlobalSettings.GetNodes()
-			fmt.Fprintln(
-				w,
-				fmt.Sprintf("Nodes\t %s (%s Unschedulable)",
-					color.GreenString(strconv.Itoa(nodesOK)),
-					color.RedString(strconv.Itoa(nodesKO)),
 				),
 			)
 			w.Flush()
