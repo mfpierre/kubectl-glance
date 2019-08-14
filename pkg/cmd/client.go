@@ -9,19 +9,21 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-const namespaces = "namespaces"
-const pods = "pods"
-const services = "services"
-const configs = "config maps"
-const pvcs = "persistent volume claims"
-const sas = "service accounts"
-const secrets = "secrets"
-const endpoints = "endpoints"
-const daemonsets = "daemonsets"
-const deploys = "deployments"
-const replicasets = "replica sets"
-const statefulsets = "stateful sets"
-const jobs = "jobs"
+const (
+	namespaces   = "namespaces"
+	pods         = "pods"
+	services     = "services"
+	configs      = "config maps"
+	pvcs         = "persistent volume claims"
+	sas          = "service accounts"
+	secrets      = "secrets"
+	endpoints    = "endpoints"
+	daemonsets   = "daemonsets"
+	deploys      = "deployments"
+	replicasets  = "replica sets"
+	statefulsets = "stateful sets"
+	jobs         = "jobs"
+)
 
 func (o *globalSettings) InitClient() {
 	restConfig, err := o.configFlags.ToRESTConfig()
@@ -99,23 +101,23 @@ func (o *globalSettings) GetNamespacedRessources() (map[string]int, error) {
 		}
 		ds, err := o.client.AppsV1().DaemonSets(n.Name).List(opts)
 		if err == nil {
-			namespacedResources[daemonsets] = len(ds.Items)
+			namespacedResources[daemonsets] += len(ds.Items)
 		}
 		depl, err := o.client.AppsV1().Deployments(n.Name).List(opts)
 		if err == nil {
-			namespacedResources[deploys] = len(depl.Items)
+			namespacedResources[deploys] += len(depl.Items)
 		}
 		rs, err := o.client.AppsV1().ReplicaSets(n.Name).List(opts)
 		if err == nil {
-			namespacedResources[replicasets] = len(rs.Items)
+			namespacedResources[replicasets] += len(rs.Items)
 		}
 		sts, err := o.client.AppsV1().StatefulSets(n.Name).List(opts)
 		if err == nil {
-			namespacedResources[statefulsets] = len(sts.Items)
+			namespacedResources[statefulsets] += len(sts.Items)
 		}
 		j, err := o.client.BatchV1().Jobs(n.Name).List(opts)
 		if err == nil {
-			namespacedResources[jobs] = len(j.Items)
+			namespacedResources[jobs] += len(j.Items)
 		}
 	}
 	return namespacedResources, nil
