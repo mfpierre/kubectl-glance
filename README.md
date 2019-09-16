@@ -1,4 +1,4 @@
-# kubectl-plugin-boilerplate
+# kubectl glance
 
 Glance at the current kubernetes cluster
 
