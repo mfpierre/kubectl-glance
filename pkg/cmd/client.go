@@ -47,80 +47,63 @@ func (o *globalSettings) GeNodeForPod(podName string) (string, error) {
 	return pod.Spec.NodeName, nil
 }
 
-func (o *globalSettings) GetNamespacedRessources() (map[string]int, error) {
-	namespacedResources := make(map[string]int)
+func (o *globalSettings) GetRessources() (map[string]int, error) {
+	resources := make(map[string]int)
 	opts := metav1.ListOptions{}
 	ns, err := o.client.CoreV1().Namespaces().List(opts)
 	if err != nil {
-		return namespacedResources, fmt.Errorf("got an error while getting namespaces: %s", err)
+		resources[namespaces] = len(ns.Items)
+	}
+	po, err := o.client.CoreV1().Pods("").List(opts)
+	if err == nil {
+		resources[pods] = len(po.Items)
+	}
+	svc, err := o.client.CoreV1().Services("").List(opts)
+	if err == nil {
+		resources[services] = len(svc.Items)
+	}
+	cm, err := o.client.CoreV1().ConfigMaps("").List(opts)
+	if err == nil {
+		resources[configs] = len(cm.Items)
+	}
+	sec, err := o.client.CoreV1().Secrets("").List(opts)
+	if err == nil {
+		resources[secrets] = len(sec.Items)
+	}
+	sa, err := o.client.CoreV1().ServiceAccounts("").List(opts)
+	if err == nil {
+		resources[sas] = len(sa.Items)
+	}
+	end, err := o.client.CoreV1().Endpoints("").List(opts)
+	if err == nil {
+		resources[endpoints] = len(end.Items)
+	}
+	pvc, err := o.client.CoreV1().PersistentVolumeClaims("").List(opts)
+	if err == nil {
+		resources[pvcs] = len(pvc.Items)
+	}
+	ds, err := o.client.AppsV1().DaemonSets("").List(opts)
+	if err == nil {
+		resources[daemonsets] = len(ds.Items)
+	}
+	depl, err := o.client.AppsV1().Deployments("").List(opts)
+	if err == nil {
+		resources[deploys] = len(depl.Items)
+	}
+	rs, err := o.client.AppsV1().ReplicaSets("").List(opts)
+	if err == nil {
+		resources[replicasets] = len(rs.Items)
+	}
+	sts, err := o.client.AppsV1().StatefulSets("").List(opts)
+	if err == nil {
+		resources[statefulsets] = len(sts.Items)
+	}
+	j, err := o.client.BatchV1().Jobs("").List(opts)
+	if err == nil {
+		resources[jobs] = len(j.Items)
 	}
 
-	namespacedResources[namespaces] = len(ns.Items)
-	namespacedResources[pods] = 0
-	namespacedResources[services] = 0
-	namespacedResources[configs] = 0
-	namespacedResources[pvcs] = 0
-	namespacedResources[secrets] = 0
-	namespacedResources[sas] = 0
-	namespacedResources[endpoints] = 0
-	namespacedResources[daemonsets] = 0
-	namespacedResources[deploys] = 0
-	namespacedResources[replicasets] = 0
-	namespacedResources[statefulsets] = 0
-	namespacedResources[jobs] = 0
-
-	for _, n := range ns.Items {
-		opts := metav1.ListOptions{}
-		po, err := o.client.CoreV1().Pods(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[pods] += len(po.Items)
-		}
-		svc, err := o.client.CoreV1().Services(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[services] += len(svc.Items)
-		}
-		cm, err := o.client.CoreV1().ConfigMaps(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[configs] += len(cm.Items)
-		}
-		sec, err := o.client.CoreV1().Secrets(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[secrets] += len(sec.Items)
-		}
-		sa, err := o.client.CoreV1().ServiceAccounts(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[sas] += len(sa.Items)
-		}
-		end, err := o.client.CoreV1().Endpoints(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[endpoints] += len(end.Items)
-		}
-		pvc, err := o.client.CoreV1().PersistentVolumeClaims(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[pvcs] += len(pvc.Items)
-		}
-		ds, err := o.client.AppsV1().DaemonSets(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[daemonsets] += len(ds.Items)
-		}
-		depl, err := o.client.AppsV1().Deployments(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[deploys] += len(depl.Items)
-		}
-		rs, err := o.client.AppsV1().ReplicaSets(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[replicasets] += len(rs.Items)
-		}
-		sts, err := o.client.AppsV1().StatefulSets(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[statefulsets] += len(sts.Items)
-		}
-		j, err := o.client.BatchV1().Jobs(n.Name).List(opts)
-		if err == nil {
-			namespacedResources[jobs] += len(j.Items)
-		}
-	}
-	return namespacedResources, nil
+	return resources, nil
 }
 
 func (o *globalSettings) GetPersistentVolumes() (int, error) {

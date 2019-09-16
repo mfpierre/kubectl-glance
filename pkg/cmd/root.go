@@ -44,8 +44,8 @@ var (
 				),
 			)
 
-			namespacedResources, err := GlobalSettings.GetNamespacedRessources()
-			for resource, value := range namespacedResources {
+			resources, err := GlobalSettings.GetRessources()
+			for resource, value := range resources {
 				fmt.Fprintln(
 					w,
 					fmt.Sprintf("%s\t %s",
