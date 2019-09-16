@@ -51,7 +51,7 @@ func (o *globalSettings) GetRessources() (map[string]int, error) {
 	resources := make(map[string]int)
 	opts := metav1.ListOptions{}
 	ns, err := o.client.CoreV1().Namespaces().List(opts)
-	if err != nil {
+	if err == nil {
 		resources[namespaces] = len(ns.Items)
 	}
 	po, err := o.client.CoreV1().Pods("").List(opts)
