@@ -2,6 +2,25 @@
 
 Glance at the current kubernetes cluster
 
+```
+> kubectl glance
+                    Nodes 3 (0 Unschedulable) Allocatable: CPU 11760m cores, Mem 10637Mi bytes
+                     Pods 25
+         Service Accounts 42
+               Daemonsets 5
+              Deployments 10
+             Replica Sets 35
+            Stateful Sets 1
+               Namespaces 3
+              Config Maps 20
+                  Secrets 43
+                Endpoints 13
+ Persistent Volume Claims 1
+                     Jobs 1
+                 Services 8
+       Persistent Volumes 1
+```
+
 ## Installing
 
 ```sh
