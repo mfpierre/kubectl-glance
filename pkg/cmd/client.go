@@ -30,6 +30,7 @@ func (o *globalSettings) InitClient() {
 	if err != nil {
 		panic(err)
 	}
+	restConfig.ContentType = "application/vnd.kubernetes.protobuf"
 	c := kubernetes.NewForConfigOrDie(restConfig)
 	rawKubeConfig := o.configFlags.ToRawKubeConfigLoader()
 	ns, _, _ := rawKubeConfig.Namespace()
